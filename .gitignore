@@ -1,0 +1,6 @@
+.vs
+x64
+build
+.idea
+cmake-build-*
+/imgui.ini
