@@ -25,24 +25,6 @@ source_group("" FILES ${SRCS})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRCS})
 
 
-########################################################################
-########################################################################
-
-set(name test1)
-include_directories(
-	${name}
-)
-set(SRCS)
-file(GLOB_RECURSE SRCS
-	${name}/*.c
-	${name}/*.cpp
-	${name}/*.h
-	${name}/*.hpp
-	${name}/*.inc
-)
-add_executable(${name} ${SRCS})
-target_link_libraries(${name} xx2dw)
-
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
@@ -56,10 +38,14 @@ if (EMSCRIPTEN)
 	set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
 	# Link in the JS library file for support code
-	append_linker_flags("--js-library ${CMAKE_CURRENT_LIST_DIR}/library_js.js")
+	#append_linker_flags("--js-library ${CMAKE_CURRENT_LIST_DIR}/library_js.js")
 
 	# Link in to WebGL/GLES system library
 	append_linker_flags("-lGL")
+	
+	append_linker_flags("-lglfw")
+	append_linker_flags("-sUSE_GLFW=3")
+	append_linker_flags("-sERROR_ON_UNDEFINED_SYMBOLS=0")
 
 	# Enable Closure compiler for aggressive JS size minification
 	append_linker_flags("--closure 1")
@@ -69,7 +55,7 @@ if (EMSCRIPTEN)
 	append_linker_flags("-sTEXTDECODER=2")
 
 	# Enable aggressive MINIMAL_RUNTIME mode.
-	append_linker_flags("-sMINIMAL_RUNTIME=2")
+	#append_linker_flags("-sMINIMAL_RUNTIME=2")
 
 	# Require WebGL 2 support in target browser, for smallest generated code size. (pass -sMIN_WEBGL_VERSION=1 to dual-target WebGL 1 and WebGL 2)
 	append_linker_flags("-sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2")
@@ -121,7 +107,61 @@ if (EMSCRIPTEN)
 	append_linker_flags("-sFILESYSTEM=0")
 endif()
 
+
+
+########################################################################
+########################################################################
+
+set(name test1)
+include_directories(
+	${name}
+)
+set(SRCS)
+file(GLOB_RECURSE SRCS
+	${name}/*.c
+	${name}/*.cpp
+	${name}/*.h
+	${name}/*.hpp
+	${name}/*.inc
+)
+add_executable(${name} ${SRCS})
+target_link_libraries(${name} xx2dw)
+
+
 file(GLOB_RECURSE assets ${name}/res/*.*)
 foreach(asset ${assets})
 	file(COPY "${asset}" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/")
 endforeach()
+
+if (EMSCRIPTEN)
+	append_linker_flags("--js-library ${CMAKE_CURRENT_LIST_DIR}/library_js.js")
+endif()
+
+
+########################################################################
+########################################################################
+
+set(name test2)
+include_directories(
+	${name}
+)
+set(SRCS)
+file(GLOB_RECURSE SRCS
+	${name}/*.c
+	${name}/*.cpp
+	${name}/*.h
+	${name}/*.hpp
+	${name}/*.inc
+)
+add_executable(${name} ${SRCS})
+target_link_libraries(${name} xx2dw)
+
+
+file(GLOB_RECURSE assets ${name}/res/*.*)
+foreach(asset ${assets})
+	file(COPY "${asset}" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/")
+endforeach()
+
+if (EMSCRIPTEN)
+	append_linker_flags("--js-library ${CMAKE_CURRENT_LIST_DIR}/library_glfw.js")
+endif()
