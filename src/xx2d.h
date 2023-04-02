@@ -9,7 +9,11 @@
 
 #include "xx2d_rnd.h"
 
+#ifdef __EMSCRIPTEN__
 #include <webgl/webgl2.h>
+#else
+#include <glad.h>
+#endif
 #include "xx2d_gl.h"
 
 #include "xx2d_enums.h"
@@ -36,8 +40,12 @@
 #include "xx2d_simple_label.h"
 #include "xx2d_gamelooper.h"
 #include "xx2d_framebuffer.h"
+#include "xx2d_particle.h"
+#include "xx2d_mv.h"
 
-//#include "xx2d_audio.h"
+#ifndef __EMSCRIPTEN__
+#include "xx2d_audio.h"
 
-//#include "xx2d_imgui.h"
+#include "xx2d_imgui.h"
+#endif
 // ...

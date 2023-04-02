@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "main.h"
-#include "xx2d_audio.h"
+//#include "xx2d_audio.h"
 #include "sobj_word.h"
 #include "virtual_keyboard.h"
 // ...
@@ -18,7 +18,7 @@ struct Scene_Game : SceneBase {
 
 	VirtualKeyboard vk;
 
-	xx::Audio audio;
+	//xx::Audio audio;
 
 	xx::Coros coros;
 

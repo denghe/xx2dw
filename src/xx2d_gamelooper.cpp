@@ -14,7 +14,9 @@ namespace xx {
 		SetConsoleOutputCP(65001);
 #endif
 
+#ifndef __EMSCRIPTEN__
 		std::cout << "working dir = " << xx::GetPath_Current().string() << std::endl;
+#endif
 
 		glfwSetErrorCallback([](int error, const char* description) {
 			throw std::logic_error{ std::string(description) + "   error number = " + std::to_string(error) };
@@ -22,7 +24,9 @@ namespace xx {
 
 		if (!glfwInit())
 			return -1;
+#ifndef __EMSCRIPTEN__
 		auto sg_glfw = xx::MakeSimpleScopeGuard([] { glfwTerminate(); });
+#endif
 
 		glfwDefaultWindowHints();
 		glfwWindowHint(GLFW_DEPTH_BITS, 0);
@@ -31,7 +35,9 @@ namespace xx {
 		auto wnd = glfwCreateWindow(xx::engine.w, xx::engine.h, wndTitle.c_str(), nullptr, nullptr);
 		if (!wnd)
 			return -2;
+#ifndef __EMSCRIPTEN__
 		auto sg_wnd = xx::MakeSimpleScopeGuard([&] { glfwDestroyWindow(wnd); });
+#endif
 		this->wnd = wnd;
 
 		// reference from raylib rcore.c
@@ -65,10 +71,10 @@ namespace xx {
 
 		glfwMakeContextCurrent(wnd);
 
+#ifndef __EMSCRIPTEN__
 		glfwSetInputMode(wnd, GLFW_LOCK_KEY_MODS, GLFW_TRUE);
 		glfwSwapInterval(0);	// no v-sync by default
 
-#ifndef __EMSCRIPTEN__
 		if (!gladLoadGL(glfwGetProcAddress))
 			return -3;
 
@@ -116,7 +122,7 @@ namespace xx {
 			xx::engine.UpdateEnd();
 			glfwSwapBuffers((GLFWwindow *)self->wnd);
 
-			return r ? EM_TRUE : EM_FALSE;
+			return r ? EM_FALSE : EM_TRUE;
 		}, this);
 		return 0;
 #endif

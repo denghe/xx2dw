@@ -35,10 +35,10 @@ int Sobj_Word::Hit(char32_t const& c) {
 		body.chars[typedLen].color = { 255,0,0,255 };
 		++typedLen;
 		if (typedLen > lastIdx) {
-			scene->audio.Play("res/5.ogg");
+			//scene->audio.Play("res/5.ogg");
 			return 0;
 		}
-		scene->audio.Play("res/4.ogg");
+		//scene->audio.Play("res/4.ogg");
 		return 1;
 	}
 	return -1;

@@ -3,14 +3,14 @@
 
 GameLooper* looper{};
 int main() {
-	GameLooper g;
-	::looper = &g;
-	return g.Run("xx2d's game: word destroyer");
+	auto g = new GameLooper();
+	::looper = g;
+	return g->Run("xx2d's game: word destroyer");
 }
 
 
 void GameLooper::Init() {
-	fnt = xx::engine.LoadBMFont("res/3500+.fnt"sv);
+	fnt = xx::engine.LoadBMFont("res/coderscrux.fnt"sv);
 	fpsViewer.Init(fnt);
 
 	scene = xx::Make<Scene_Menu>();

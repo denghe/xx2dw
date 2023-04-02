@@ -67,12 +67,13 @@ if (EMSCRIPTEN)
 	
 	append_linker_flags("-lglfw")
 	append_linker_flags("-sUSE_GLFW=3")
-	append_linker_flags("-sTOTAL_MEMORY=67108864")
+	append_linker_flags("-sTOTAL_MEMORY=134217728")
+	append_linker_flags("-sALLOW_MEMORY_GROWTH=1")
 	append_linker_flags("-sASSERTIONS=1")
+	append_linker_flags("-sNO_DISABLE_EXCEPTION_CATCHING=1")
+	#append_linker_flags("-pthread -sUSE_PTHREADS -sPROXY_TO_PTHREAD")
+	
 	#append_linker_flags("-sERROR_ON_UNDEFINED_SYMBOLS=0")
-
-	# Enable Closure compiler for aggressive JS size minification
-	append_linker_flags("--closure 1")
 
 	# When marshalling C UTF-8 strings across the JS<->Wasm language boundary, favor smallest generated code size
 	# rather than performance
@@ -88,12 +89,12 @@ if (EMSCRIPTEN)
 	add_definitions(-DMAX_WEBGL_VERSION=2)
 
 	# The generated build output is only to be expected to be run in a web browser, never in a native CLI shell, or in a web worker.
-	append_linker_flags("-sENVIRONMENT=web")
+	append_linker_flags("-sENVIRONMENT=web,worker")
 
 	# Choose the oldest browser versions that should be supported. The higher minimum bar you choose, the less
 	# emulation code may be present for old browser quirks.
-	append_linker_flags("-sMIN_FIREFOX_VERSION=70")
-	append_linker_flags("-sMIN_SAFARI_VERSION=130000")
+	append_linker_flags("-sMIN_FIREFOX_VERSION=79")
+	append_linker_flags("-sMIN_SAFARI_VERSION=150000")
 	append_linker_flags("-sMIN_IE_VERSION=0x7FFFFFFF") # Do not support Internet Explorer at all (this is the Emscripten default, shown here for posterity)
 	append_linker_flags("-sMIN_EDGE_VERSION=79") # Require Chromium-based Edge browser
 	append_linker_flags("-sMIN_CHROME_VERSION=80")
@@ -122,13 +123,17 @@ if (EMSCRIPTEN)
 	append_linker_flags("-sGL_SUPPORT_SIMPLE_ENABLE_EXTENSIONS=0")
 
 	# Optimization flag to optimize aggressively for size. (other options -Os, -O3, -O2, -O1, -O0)
+	#append_linker_flags("-O0")
+	#append_linker_flags("-g")
 	append_linker_flags("-Oz")
+	# Enable Closure compiler for aggressive JS size minification
+	append_linker_flags("--closure 1")
 
 	# Reduce code size: We do not need libc errno field support in our build output.
 	append_linker_flags("-sSUPPORT_ERRNO=0")
 
 	# Reduce code size: We do not need native POSIX filesystem emulation support (Emscripten FS/MEMFS)
-	append_linker_flags("-sFILESYSTEM=0")
+	#append_linker_flags("-sFILESYSTEM=0")
 endif()
 
 
@@ -206,12 +211,7 @@ file(GLOB_RECURSE SRCS
 add_executable(${name} ${SRCS})
 target_link_libraries(${name} xx2dw pugixml libzstd_static)
 
-
-file(GLOB_RECURSE assets ${name}/res/*.*)
-foreach(asset ${assets})
-	file(COPY "${asset}" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/")
-endforeach()
-
 if (EMSCRIPTEN)
 	append_linker_flags("--js-library ${CMAKE_CURRENT_LIST_DIR}/library_glfw.js")
+	append_linker_flags("--preload-file ${CMAKE_CURRENT_LIST_DIR}/${name}/res@")
 endif()
