@@ -5,13 +5,20 @@ project(${name})
 
 set(CMAKE_CXX_STANDARD 20)
 
+
 include_directories(
+	stb
+	pugixml/src
+	3rd
 	xxlib
 	src
 )
 
 set(SRCS)
 file(GLOB SRCS	#GLOB_RECURSE
+	stb/*.h
+	pugixml/src/*.hpp
+	3rd/*.*
 	xxlib/*.h
 	src/*.c
 	src/*.cpp
@@ -23,6 +30,21 @@ add_library(${name} ${SRCS})
 
 source_group("" FILES ${SRCS})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRCS})
+
+
+add_subdirectory(pugixml)
+
+
+SET(BUILD_TESTING OFF CACHE BOOL "BUILD_TESTING" FORCE)
+SET(USE_MSVC_RUNTIME_LIBRARY_DLL OFF CACHE BOOL "USE_MSVC_RUNTIME_LIBRARY_DLL" FORCE)
+SET(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "ZSTD_BUILD_PROGRAMS" FORCE)
+SET(ZSTD_BUILD_SHARED OFF CACHE BOOL "ZSTD_BUILD_SHARED" FORCE)
+SET(ZSTD_BUILD_TESTS OFF CACHE BOOL "ZSTD_BUILD_SHARED" FORCE)
+SET(ZSTD_LEGACY_SUPPORT OFF CACHE BOOL "ZSTD_LEGACY_SUPPORT" FORCE)
+add_subdirectory(zstd/build/cmake zstd)
+include_directories(
+	zstd/lib
+)
 
 
 
@@ -45,7 +67,9 @@ if (EMSCRIPTEN)
 	
 	append_linker_flags("-lglfw")
 	append_linker_flags("-sUSE_GLFW=3")
-	append_linker_flags("-sERROR_ON_UNDEFINED_SYMBOLS=0")
+	append_linker_flags("-sTOTAL_MEMORY=67108864")
+	append_linker_flags("-sASSERTIONS=1")
+	#append_linker_flags("-sERROR_ON_UNDEFINED_SYMBOLS=0")
 
 	# Enable Closure compiler for aggressive JS size minification
 	append_linker_flags("--closure 1")
@@ -154,7 +178,33 @@ file(GLOB_RECURSE SRCS
 	${name}/*.inc
 )
 add_executable(${name} ${SRCS})
-target_link_libraries(${name} xx2dw)
+
+file(GLOB_RECURSE assets ${name}/res/*.*)
+foreach(asset ${assets})
+	file(COPY "${asset}" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/")
+endforeach()
+
+if (EMSCRIPTEN)
+	append_linker_flags("--js-library ${CMAKE_CURRENT_LIST_DIR}/library_glfw.js")
+endif()
+
+########################################################################
+########################################################################
+
+set(name test3)
+include_directories(
+	${name}
+)
+set(SRCS)
+file(GLOB_RECURSE SRCS
+	${name}/*.c
+	${name}/*.cpp
+	${name}/*.h
+	${name}/*.hpp
+	${name}/*.inc
+)
+add_executable(${name} ${SRCS})
+target_link_libraries(${name} xx2dw pugixml libzstd_static)
 
 
 file(GLOB_RECURSE assets ${name}/res/*.*)

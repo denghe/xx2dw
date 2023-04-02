@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.9" tiledversion="1.9.2" class="asdf" orientation="orthogonal" renderorder="right-down" width="300" height="200" tilewidth="64" tileheight="64" infinite="0" nextlayerid="8" nextobjectid="53">
+ <tileset firstgid="1" source="tiles.tsx"/>
+ <tileset firstgid="49" source="eee.tsx"/>
+ <tileset firstgid="97" source="multi pics.tsx"/>
+ <layer id="1" name="bg" width="300" height="200">
+  <data encoding="base64" compression="zstd">
+   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
+  </data>
+ </layer>
+ <objectgroup id="2" name="objs" class="qwer" locked="1" opacity="0.9" tintcolor="#550000" offsetx="1.1" offsety="2.2" parallaxx="1.01" parallaxy="1.01">
+  <object id="22" template="p1.tx" class="p1c" x="-100.01" y="5504"/>
+  <object id="23" x="4544" y="6336">
+   <point/>
+  </object>
+  <object id="28" template="r1.tx" x="4736" y="8448"/>
+  <object id="32" template="c1.tx" class="c1c" x="10560" y="5440"/>
+  <object id="33" template="3.tx" x="14592" y="7936"/>
+  <object id="42" template="t1.tx" x="14592" y="3392"/>
+  <object id="43" template="s1.tx" class="s1c" x="9792" y="8448"/>
+  <object id="44" x="11584" y="8704" width="88" height="16" visible="0">
+   <text wrap="1">Hello World</text>
+  </object>
+  <object id="45" template="s1.tx" x="6784" y="4480"/>
+  <object id="46" template="s1.tx" name="s111" class="s111c" x="10048" y="4032" width="1936.49" height="328.485" rotation="33" visible="1">
+   <properties>
+    <property name="eee" value="ererer"/>
+    <property name="ff" type="float" value="-7.5"/>
+   </properties>
+   <text fontfamily="仿宋" pixelsize="64" color="#aa557f" underline="1" strikeout="1" kerning="0" halign="center" valign="center">asdfasdfasdf</text>
+  </object>
+  <object id="47" template="t1.tx" name="ttt" class="ccc" gid="31" x="10688" y="1762.84" width="1170.58" height="1058.84" rotation="33"/>
+  <object id="48" template="r1.tx" x="1600" y="4160"/>
+  <object id="49" template="p1.tx" x="5248" y="1984"/>
+  <object id="50" template="c1.tx" x="6208" y="6784"/>
+  <object id="51" template="3.tx" x="14976" y="4352"/>
+  <object id="52" template="eee1.tx" x="10624" y="11520"/>
+ </objectgroup>
+ <group id="3" name="Group 1" class="g1c" opacity="0.8" tintcolor="#aa5500" offsetx="0.01" offsety="0.01" parallaxx="1.01" parallaxy="1.01">
+  <properties>
+   <property name="a" type="int" value="123"/>
+  </properties>
+  <group id="5" name="Group 2">
+   <imagelayer id="4" name="Image Layer 1" class="ddfdfd" visible="0" locked="1" opacity="0.9" tintcolor="#ff5500" offsetx="0.01" offsety="0.01" parallaxx="1.01" parallaxy="1.01" repeatx="1" repeaty="1">
+    <image source="tmw_desert_spacing-hd.png" trans="55557f" width="532" height="400"/>
+   </imagelayer>
+   <layer id="6" name="Tile Layer 2" width="300" height="200">
+    <data encoding="base64" compression="zstd">
+   KLUv/aCAqQMAfAEAQABgYGBgYGBgD6DgPuCCD4GmOWsayM+aBvKzpoH8rGkgP2sayM+aBvIzE0uHby2tAAAIWAXAeTIg13az5F4k4L8LhWvsbgY=
+  </data>
+   </layer>
+  </group>
+ </group>
+</map>
