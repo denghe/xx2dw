@@ -164,7 +164,7 @@ foreach(asset ${assets})
 endforeach()
 
 if (EMSCRIPTEN)
-	set_target_properties(${name} PROPERTIES LINK_FLAGS "-sFILESYSTEM=0 --js-library ${CMAKE_CURRENT_LIST_DIR}/library_js.js")
+	set_target_properties(${name} PROPERTIES LINK_FLAGS "-sFILESYSTEM=0 --js-library ${CMAKE_CURRENT_LIST_DIR}/${name}/library_js.js")
 endif()
 
 
