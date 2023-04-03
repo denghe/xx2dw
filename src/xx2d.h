@@ -10,7 +10,7 @@
 #include "xx2d_rnd.h"
 
 #ifdef __EMSCRIPTEN__
-#include <webgl/webgl2.h>
+#include <GLES3/gl3.h>
 #else
 #include <glad.h>
 #endif

@@ -41,6 +41,7 @@ SET(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "ZSTD_BUILD_PROGRAMS" FORCE)
 SET(ZSTD_BUILD_SHARED OFF CACHE BOOL "ZSTD_BUILD_SHARED" FORCE)
 SET(ZSTD_BUILD_TESTS OFF CACHE BOOL "ZSTD_BUILD_SHARED" FORCE)
 SET(ZSTD_LEGACY_SUPPORT OFF CACHE BOOL "ZSTD_LEGACY_SUPPORT" FORCE)
+SET(ZSTD_MULTITHREAD_SUPPORT OFF CACHE BOOL "ZSTD_MULTITHREAD_SUPPORT" FORCE)
 add_subdirectory(zstd/build/cmake zstd)
 include_directories(
 	zstd/lib
@@ -83,13 +84,13 @@ if (EMSCRIPTEN)
 	#append_linker_flags("-sMINIMAL_RUNTIME=2")
 
 	# Require WebGL 2 support in target browser, for smallest generated code size. (pass -sMIN_WEBGL_VERSION=1 to dual-target WebGL 1 and WebGL 2)
-	append_linker_flags("-sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2")
+	append_linker_flags("-sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES3")
 
 	# Tell the example code in webgl.c that we are only targeting WebGL 2.
 	add_definitions(-DMAX_WEBGL_VERSION=2)
 
 	# The generated build output is only to be expected to be run in a web browser, never in a native CLI shell, or in a web worker.
-	append_linker_flags("-sENVIRONMENT=web,worker")
+	append_linker_flags("-sENVIRONMENT=web")
 
 	# Choose the oldest browser versions that should be supported. The higher minimum bar you choose, the less
 	# emulation code may be present for old browser quirks.
@@ -104,13 +105,13 @@ if (EMSCRIPTEN)
 	append_linker_flags("-sABORTING_MALLOC=0")
 
 	# Reduce WebGL code size: We do not need GLES2 emulation for automatic GL extension enabling
-	append_linker_flags("-sGL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=0")
+	append_linker_flags("-sGL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1")
 
 	# Reduce WebGL code size: We do not need GLES2 emulation for GL extension names
-	append_linker_flags("-sGL_EXTENSIONS_IN_PREFIXED_FORMAT=0")
+	#append_linker_flags("-sGL_EXTENSIONS_IN_PREFIXED_FORMAT=0")
 
 	# Reduce WebGL code size: No need to specify the GL_VENDOR/GL_RENDERER etc. fields in format required by GLES2 spec.
-	append_linker_flags("-sGL_EMULATE_GLES_VERSION_STRING_FORMAT=0")
+	#append_linker_flags("-sGL_EMULATE_GLES_VERSION_STRING_FORMAT=0")
 
 	# Reduce WebGL code size at the expense of performance (this only has an effect in WebGL 1, practically a no-op here)
 	append_linker_flags("-sGL_POOL_TEMP_BUFFERS=0")
@@ -120,7 +121,7 @@ if (EMSCRIPTEN)
 	append_linker_flags("-sGL_TRACK_ERRORS=0")
 
 	# Reduce WebGL code size: do not emit code for extensions that we might not need.
-	append_linker_flags("-sGL_SUPPORT_SIMPLE_ENABLE_EXTENSIONS=0")
+	#append_linker_flags("-sGL_SUPPORT_SIMPLE_ENABLE_EXTENSIONS=0")
 
 	# Optimization flag to optimize aggressively for size. (other options -Os, -O3, -O2, -O1, -O0)
 	#append_linker_flags("-O0")
@@ -163,7 +164,7 @@ foreach(asset ${assets})
 endforeach()
 
 if (EMSCRIPTEN)
-	append_linker_flags("--js-library ${CMAKE_CURRENT_LIST_DIR}/library_js.js")
+	set_target_properties(${name} PROPERTIES LINK_FLAGS "-sFILESYSTEM=0 --js-library ${CMAKE_CURRENT_LIST_DIR}/library_js.js")
 endif()
 
 
@@ -190,7 +191,7 @@ foreach(asset ${assets})
 endforeach()
 
 if (EMSCRIPTEN)
-	append_linker_flags("--js-library ${CMAKE_CURRENT_LIST_DIR}/library_glfw.js")
+	set_target_properties(${name} PROPERTIES LINK_FLAGS "-sFILESYSTEM=0")
 endif()
 
 ########################################################################
@@ -212,6 +213,28 @@ add_executable(${name} ${SRCS})
 target_link_libraries(${name} xx2dw pugixml libzstd_static)
 
 if (EMSCRIPTEN)
-	append_linker_flags("--js-library ${CMAKE_CURRENT_LIST_DIR}/library_glfw.js")
-	append_linker_flags("--preload-file ${CMAKE_CURRENT_LIST_DIR}/${name}/res@")
+	set_target_properties(${name} PROPERTIES LINK_FLAGS "--preload-file ${CMAKE_CURRENT_LIST_DIR}/${name}/res@")
+endif()
+
+
+########################################################################
+########################################################################
+
+set(name examples)
+include_directories(
+	${name}
+)
+set(SRCS)
+file(GLOB_RECURSE SRCS
+	${name}/*.c
+	${name}/*.cpp
+	${name}/*.h
+	${name}/*.hpp
+	${name}/*.inc
+)
+add_executable(${name} ${SRCS})
+target_link_libraries(${name} xx2dw pugixml libzstd_static)
+
+if (EMSCRIPTEN)
+	set_target_properties(${name} PROPERTIES LINK_FLAGS "--preload-file ${CMAKE_CURRENT_LIST_DIR}/res@")
 endif()

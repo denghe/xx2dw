@@ -14,5 +14,5 @@ build script:
 mkdir build
 cd build
 emcmake cmake ..
-emmake make
+emmake make -j16
 ```
