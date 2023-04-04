@@ -9,15 +9,18 @@ set(CMAKE_CXX_STANDARD 20)
 include_directories(
 	stb
 	pugixml/src
+	libvpx_prebuilt/gnusrc
+	libvpx_prebuilt/gnusrc/vpx
 	3rd
 	xxlib
 	src
 )
 
 set(SRCS)
-file(GLOB SRCS	#GLOB_RECURSE
+file(GLOB_RECURSE SRCS
 	stb/*.h
 	pugixml/src/*.hpp
+	libvpx_prebuilt/gnusrc/*.c
 	3rd/*.*
 	xxlib/*.h
 	src/*.c
@@ -213,7 +216,7 @@ add_executable(${name} ${SRCS})
 target_link_libraries(${name} xx2dw pugixml libzstd_static)
 
 if (EMSCRIPTEN)
-	set_target_properties(${name} PROPERTIES LINK_FLAGS "--preload-file ${CMAKE_CURRENT_LIST_DIR}/${name}/res@")
+	set_target_properties(${name} PROPERTIES LINK_FLAGS "--preload-file ${CMAKE_CURRENT_LIST_DIR}/${name}/res@res")
 endif()
 
 
@@ -236,5 +239,5 @@ add_executable(${name} ${SRCS})
 target_link_libraries(${name} xx2dw pugixml libzstd_static)
 
 if (EMSCRIPTEN)
-	set_target_properties(${name} PROPERTIES LINK_FLAGS "--preload-file ${CMAKE_CURRENT_LIST_DIR}/res@")
+	set_target_properties(${name} PROPERTIES LINK_FLAGS "--preload-file ${CMAKE_CURRENT_LIST_DIR}/res@res")
 endif()

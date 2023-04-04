@@ -1,9 +1,5 @@
 ﻿#include"xx2d.h"
 #include <GLFW/glfw3.h>
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#include <emscripten/html5.h>
-#endif
 
 namespace xx {
 
@@ -88,9 +84,11 @@ namespace xx {
 		//  user code call here
 		// ***************************************************************************************
 
-		Init();										// looper init
+		Init();										// looper init1
 
 		xx::engine.GLInit(wnd);
+
+		AfterGLInit();								// looper init2
 
 #ifndef __EMSCRIPTEN__
 		int r{};
