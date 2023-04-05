@@ -5,21 +5,19 @@ namespace ActionTest {
 
 	xx::Coro Foo::Action_Shake(float r1, float r2, float step) {
 		CoYield;
-		while (true) {
-			for (radians = r1; radians < r2; radians += 0.01f) {
+		while (true) {	// repeat forever
+			for (radians = r1; radians < r2; radians += step) {
 				CoYield;
-				if (dying) CoReturn;
 			}
-			for (radians = r2; radians >= r1; radians -= 0.01f) {
+			for (radians = r2; radians >= r1; radians -= step) {
 				CoYield;
-				if (dying) CoReturn;
 			}
 		}
 	}
 
 	xx::Coro Foo::Action_MoveTo(xx::XY tar) {
 		CoYield;
-		while (true) {
+		while (true) {	// repeat until
 			auto v = tar - pos;
 			if (v.x * v.x + v.y * v.y <= speed * speed) {
 				pos = tar;
@@ -29,18 +27,19 @@ namespace ActionTest {
 			}
 			CoYield;
 		}
-		dying = true;
+		dying = true;	// set state flag
 	}
 
 	xx::Coro Foo::Action_Shake_MoveTo(xx::XY tar) {
 		CoYield;
-		xx::Coros cs;
-		cs.Add(Action_Shake(-0.1f, 0.1f, 0.03f));
+		xx::Coros cs(2);
+		cs.Add(Action_Shake(-0.07f, 0.07f, 0.03f));
 		cs.Add(Action_MoveTo(tar));
-		while (cs()) CoYield;
+		while (cs() && cs.Count() == 2) CoYield;	// wait one
+		cs.Clear();
 		cs.Add(Action_FadeOut(1.f / 60));
 		cs.Add(Action_ScaleTo(0, 1.f / 60));
-		while (cs()) CoYield;
+		while (cs()) CoYield;						// wait all
 		dead = true;
 	}
 
@@ -65,7 +64,7 @@ namespace ActionTest {
 		scene = scene_;
 		pos = xx::engine.mousePosition;
 		speed = 2.f;
-		action.emplace(Action_Shake(-0.07f, 0.07f, 0.01));
+		action.emplace(Action_Shake(-0.07f, 0.07f, 0.005));
 		DrawInit();
 	}
 
@@ -103,6 +102,7 @@ namespace ActionTest {
 			if (xx::engine.Pressed(xx::Mbtns::Left)) {
 				(new (&foos.Add()) Foo())->Init(this);
 			}
+
 			if (xx::engine.Pressed(xx::Mbtns::Right)) {
 				for (auto idx = foos.head; idx != -1; idx = foos.Next(idx)) {
 					auto& foo = foos[idx];
@@ -111,22 +111,15 @@ namespace ActionTest {
 				}
 			}
 
-			int prev = -1, next{};
-			for (auto idx = foos.head; idx != -1;) {
-				if (foos[idx].Update()) {
-					next = foos.Remove(idx, prev);
-				} else {
-					next = foos.Next(idx);
-					prev = idx;
-				}
-				idx = next;
-			}
+			foos.ForeachRemove([](auto& foo)->bool {
+				return foo.Update();
+			});
 		}
 
 		// draw
-		for (auto idx = foos.head; idx != -1; idx = foos.Next(idx)) {
-			foos[idx].Draw();
-		}
+		foos.Foreach([](auto& foo) {
+			foo.Draw();
+		});
 
 		// draw tips text
 		xx::SimpleLabel().SetPosition(xx::engine.ninePoints[8].MakeAdd(0, -32))
