@@ -42,6 +42,9 @@ namespace xx {
         handle_type h;
     };
 
+    template<>
+    struct IsPod<Coro> : std::true_type {};
+
     struct Coros {
         Coros(Coros const&) = delete;
         Coros& operator=(Coros const&) = delete;
@@ -55,7 +58,7 @@ namespace xx {
 
         void Add(Coro&& g) {
             if (g) return;
-            new (&coros.Add()) Coro(std::move(g));
+            coros.Emplace(std::move(g));
         }
 
         void Clear() {
