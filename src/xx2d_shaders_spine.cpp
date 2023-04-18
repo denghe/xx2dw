@@ -2,7 +2,7 @@
 
 namespace xx {
 
-	void Shader_TexVerts::Init(ShaderManager* sm) {
+	void Shader_Spine::Init(ShaderManager* sm) {
 		this->sm = sm;
 		v = LoadGLVertexShader({ R"(#version 300 es
 precision highp float;
@@ -47,7 +47,6 @@ void main() {
 		glGenVertexArrays(1, va.Get());
 		glBindVertexArray(va);
 		glGenBuffers(1, (GLuint*)&vb);
-		glGenBuffers(1, (GLuint*)&ib);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vb);
 		glVertexAttribPointer(aPos, 2, GL_FLOAT, GL_FALSE, sizeof(XYUVRGBA8), 0);
@@ -57,8 +56,6 @@ void main() {
 		glVertexAttribPointer(aColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(XYUVRGBA8), (GLvoid*)offsetof(XYUVRGBA8, r));
 		glEnableVertexAttribArray(aColor);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
-
 		glBindVertexArray(0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -66,7 +63,7 @@ void main() {
 		CheckGLError();
 	}
 
-	void Shader_TexVerts::Begin() {
+	void Shader_Spine::Begin() {
 		if (sm->cursor != index) {
 			// here can check shader type for combine batch
 			sm->shaders[sm->cursor]->End();
@@ -77,58 +74,53 @@ void main() {
 			glUseProgram(p);
 			glActiveTexture(GL_TEXTURE0/* + textureUnit*/);
 			glUniform1i(uTex0, 0);
-			glUniform2f(uCxy, 2 / engine.w, 2 / engine.h);
+			glUniform2f(uCxy, 2 / engine.w, 2 / -engine.h);	// reverse y for spine
 
 			glBindVertexArray(va);
 		}
 	}
 
-	void Shader_TexVerts::End() {
+	void Shader_Spine::End() {
 		if (texsCount) {
 			Commit();
 		}
 	}
 
-	void Shader_TexVerts::Commit() {
+	void Shader_Spine::Commit() {
 		glBindBuffer(GL_ARRAY_BUFFER, vb);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(XYUVRGBA8) * vertsCount, verts.get(), GL_STREAM_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * indexsCount, indexs.get(), GL_STREAM_DRAW);
 
-		size_t j = 0;
+		GLsizei j = 0;
 		for (size_t i = 0; i < texsCount; i++) {
 			glBindTexture(GL_TEXTURE_2D, texs[i].first);
-			glDrawElements(GL_TRIANGLES, texs[i].second, GL_UNSIGNED_SHORT, (GLvoid*)j);
-			j += texs[i].second * 2;
+			glDrawArrays(GL_TRIANGLES, j, texs[i].second);
+			j += texs[i].second;
 		}
 		CheckGLError();
 
-		sm->drawVerts += j / 2;
+		sm->drawVerts += j;
 		sm->drawCall += texsCount;
 
 		lastTextureId = 0;
 		texsCount = 0;
 		vertsCount = 0;
-		indexsCount = 0;
 	}
 
-	std::tuple<size_t, XYUVRGBA8*, uint16_t*> Shader_TexVerts::Draw(GLTexture& tex, size_t const& numVerts, size_t const& numIndexs) {
+	XYUVRGBA8* Shader_Spine::Draw(GLTexture& tex, size_t const& numVerts) {
 		assert(numVerts <= maxVertNums);
-		assert(numIndexs <= maxIndexNums);
-		if (vertsCount + numVerts > maxVertNums || indexsCount + numIndexs > maxIndexNums) {
+		if (vertsCount + numVerts > maxVertNums) {
 			Commit();
 		}
 		if (lastTextureId != tex) {
 			lastTextureId = tex;
 			texs[texsCount].first = tex;
-			texs[texsCount].second = numIndexs;
+			texs[texsCount].second = numVerts;
 			++texsCount;
 		} else {
-			texs[texsCount - 1].second += numIndexs;
+			texs[texsCount - 1].second += numVerts;
 		}
-		std::tuple<size_t, XYUVRGBA8*, uint16_t*> r{ vertsCount, &verts[vertsCount], &indexs[indexsCount] };
+		auto r = &verts[vertsCount];
 		vertsCount += numVerts;
-		indexsCount += numIndexs;
 		return r;
 	}
 }

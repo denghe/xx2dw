@@ -11,6 +11,7 @@ include_directories(
 	pugixml/src
 	libvpx_prebuilt/gnusrc
 	libvpx_prebuilt/gnusrc/vpx
+	spine-runtimes/spine-cpp/spine-cpp/include
 	3rd
 	xxlib
 	src
@@ -21,6 +22,7 @@ file(GLOB_RECURSE SRCS
 	stb/*.h
 	pugixml/src/*.hpp
 	libvpx_prebuilt/gnusrc/*.c
+	spine-runtimes/spine-cpp/spine-cpp/src/spine/*.cpp
 	3rd/*.*
 	xxlib/*.h
 	src/*.c
@@ -49,7 +51,6 @@ add_subdirectory(zstd/build/cmake zstd)
 include_directories(
 	zstd/lib
 )
-
 
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -226,6 +227,7 @@ endif()
 set(name examples)
 include_directories(
 	${name}
+	spine-runtimes/spine-cpp/spine-cpp/include
 )
 set(SRCS)
 file(GLOB_RECURSE SRCS

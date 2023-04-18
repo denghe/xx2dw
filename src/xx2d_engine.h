@@ -25,6 +25,9 @@ namespace xx {
 		// read all data by GetFullPath( fn )
 		std::pair<xx::Data, std::string> LoadFileData(std::string_view const& fn, bool autoDecompress = true);
 
+		// detect file format by content header
+		SupportedFileFormats DetectFileFormat(Data_r const& d);
+
 		/**********************************************************************************/
 		// fonts
 
@@ -101,6 +104,10 @@ namespace xx {
 		std::pair<uint32_t, uint32_t> blendFuncsDefault{ GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA };
 		std::pair<uint32_t, uint32_t> blendFuncs;
 		void GLBlendFunc(std::pair<uint32_t, uint32_t> const& bfs = { GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA });
+
+		bool blendEnabled{};
+		void GLEnableBlend();
+		void GLDisableBlend();
 
 
 		/**********************************************************************************/

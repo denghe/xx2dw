@@ -37,7 +37,7 @@ void main() {
 		aColor = glGetAttribLocation(p, "aColor");
 		CheckGLError();
 
-		glGenVertexArrays(1, &va.Ref());
+		glGenVertexArrays(1, va.Get());
 		glBindVertexArray(va);
 		glGenBuffers(1, (GLuint*)&vb);
 		glGenBuffers(1, (GLuint*)&ib);
@@ -62,12 +62,14 @@ void main() {
 			// here can check shader type for combine batch
 			sm->shaders[sm->cursor]->End();
 			sm->cursor = index;
+
+			engine.GLEnableBlend();
+
+			glUseProgram(p);
+			glUniform2f(uCxy, 2 / engine.w, 2 / engine.h);
+
+			glBindVertexArray(va);
 		}
-
-		glUseProgram(p);
-		glUniform2f(uCxy, 2 / engine.w, 2 / engine.h);
-
-		glBindVertexArray(va);
 	}
 
 	void Shader_LineStrip::End() {

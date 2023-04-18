@@ -7,7 +7,7 @@
 #include <glad.h>
 #endif
 
-#define STBI_NO_JPEG
+//#define STBI_NO_JPEG
 //#define STBI_NO_PNG
 #define STBI_NO_GIF
 #define STBI_NO_PSD
@@ -36,6 +36,7 @@ namespace xx {
 	GLuint LoadGLTexture_core(int textureUnit) {
 		GLuint t{};
 		glGenTextures(1, &t);
+//		std::cout << "glGenTextures " << t << std::endl;
 		glActiveTexture(GL_TEXTURE0 + textureUnit);
 		glBindTexture(GL_TEXTURE_2D, t);
 		GLTexParmCore();
@@ -169,13 +170,30 @@ namespace xx {
 
 		else if (buf.starts_with("\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"sv)) {
 			int w, h, comp;
-			if (auto image = stbi_load(std::string(fullPath).c_str(), &w, &h, &comp, STBI_rgb_alpha)) {
+			if (auto image = stbi_load_from_memory((stbi_uc*)buf.data(), buf.size(), &w, &h, &comp, 0)) {
 				auto c = comp == 3 ? GL_RGB : GL_RGBA;
 				if (comp == 4) {
 					glPixelStorei(GL_UNPACK_ALIGNMENT, 8 - 4 * (w & 0x1));
 				}
 				auto t = LoadGLTexture_core();
 				glTexImage2D(GL_TEXTURE_2D, 0, c, w, h, 0, c, GL_UNSIGNED_BYTE, image);
+				glBindTexture(GL_TEXTURE_2D, 0);
+				CheckGLError();
+				stbi_image_free(image);
+				return { t, w, h, fullPath };
+			} else {
+				std::logic_error(xx::ToString("failed to load texture. fn = ", fullPath));
+			}
+		}
+
+		/***********************************************************************************************************************************/
+		// jpg
+
+		else if (buf.starts_with("\xFF\xD8"sv)) {
+			int w, h, comp;
+			if (auto image = stbi_load_from_memory((stbi_uc*)buf.data(), buf.size(), &w, &h, &comp, 0)) {
+				auto t = LoadGLTexture_core();
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 				glBindTexture(GL_TEXTURE_2D, 0);
 				CheckGLError();
 				stbi_image_free(image);
